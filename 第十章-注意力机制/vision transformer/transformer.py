@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 
-class Self_Attention(nn.Module):
+class SelfAttention(nn.Module):
     """
         注意力函数,可以通过参数指定是多头还是单头,注意力评分函数用的是Dot-Product.
 
@@ -91,7 +91,7 @@ class Mlp(nn.Module):
         self.fc2 = nn.Linear(hidden_features, out_features)
         self.drop2 = nn.Dropout(drop_ratio)
 
-
+    # 形状为(batch, token数量, 每个token的长度)
     def forward(self, x):
         x = self.fc1(x)
         x = self.gelu(x)
@@ -109,7 +109,7 @@ class TransformerEncoder(nn.Module):
         Parameters:
             head_num:多头注意力中的几个头.
             token_dim:输入到encoder中的每个token的长度.
-            mlp_hid_mul:MLP中的第一个全连接层输出的维度.
+            mlp_hid_mul:MLP中的第一个全连接层输出的维度是输入维度的几倍.
             drop:dropout的概率.
 
         Returns:
@@ -118,11 +118,11 @@ class TransformerEncoder(nn.Module):
         super().__init__()
 
         self.norm1 = nn.LayerNorm(token_dim)
-        self.att = Self_Attention(token_dim, token_dim, token_dim, head_num)
+        self.att = SelfAttention(token_dim, token_dim, token_dim, head_num)
         self.norm2 = nn.LayerNorm(token_dim)
         self.mlp = Mlp(token_dim, token_dim * mlp_hid_ratio, token_dim, drop_ratio)
 
-
+    # 形状为(batch, token数量, 每个token的长度)
     def forward(self, x):
         x = x + self.att(self.norm1(x))
         x = x + self.mlp(self.norm2(x))
@@ -131,4 +131,4 @@ class TransformerEncoder(nn.Module):
 
 
 if __name__ == "__main__":
-    print("asdf")
+    print(TransformerEncoder(12, 768, 768, 0))
